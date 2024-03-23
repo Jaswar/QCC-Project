@@ -1,3 +1,6 @@
 .idea/
 venv/
 libs/
+**/log/
+**/__pycache__/
+**/cysignals_crash_logs/

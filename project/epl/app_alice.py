@@ -15,7 +15,9 @@ def main(app_config=None):
 
     # Create Alice's context, initialize EPR pairs inside it and call Alice's EPL method. Finally, print out whether or not Alice successfully created an EPR Pair with Bob.
     with alice:
-        pass
+        q1, q2 = epr_socket.create(2)
+        result = epl_protocol_alice(q1, q2, alice, socket)
+    return result
 
 if __name__ == "__main__":
     main()
