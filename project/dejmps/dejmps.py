@@ -61,6 +61,7 @@ def dejmps_protocol_bob(q1, q2, bob, socket):
     socket.send(str(b))
     print(a, b)
 
+    # TODO: what does "is successful" mean? should we measure the fidelity before and after the gates?
     return a == b
 
 def dejmps_gates_and_measurement_bob(q1, q2):
