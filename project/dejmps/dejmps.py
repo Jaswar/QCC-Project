@@ -46,9 +46,14 @@ def dejmps_protocol_bob(q1, q2, bob, socket):
     """
     b = dejmps_gates_and_measurement_bob(q1, q2)
     bob.flush()
+    b = int(b)
 
     # Write below the code to send measurement result to Alice, receive measurement result from Alice and check if protocol was successful
-    pass
+    a = int(socket.recv())
+    socket.send(str(b))
+    print(a, b)
+
+    return a == b
 
 def dejmps_gates_and_measurement_bob(q1, q2):
     """
@@ -57,4 +62,6 @@ def dejmps_gates_and_measurement_bob(q1, q2):
     :param q2: Bob's qubit from the second entangled pair
     :return: Integer 0/1 indicating Bob's measurement outcome
     """
-    pass
+    q1.cnot(q2)
+    m = q2.measure()
+    return m
