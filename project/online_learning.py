@@ -17,7 +17,7 @@ def get_output(name):
 def run_algorithm(name):
     fidelity = 0.0
     try:
-        subprocess.run([f'cd {name} && netqasm simulate'], shell=True, timeout=30)
+        subprocess.run([f'cd {name} && netqasm simulate'], shell=True, timeout=60)
         fidelity = get_output(name)
     except subprocess.TimeoutExpired as ex:
         print(f'{name} expired after 30 seconds!')
