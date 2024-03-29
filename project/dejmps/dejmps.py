@@ -21,7 +21,6 @@ def dejmps_protocol_alice(q1, q2, alice, socket):
     # Write below the code to send measurement result to Bob, receive measurement result from Bob and check if protocol was successful
     socket.send(str(a))
     b = int(socket.recv())
-    print(a, b)
 
     return a == b
 
@@ -59,7 +58,6 @@ def dejmps_protocol_bob(q1, q2, bob, socket):
     # Write below the code to send measurement result to Alice, receive measurement result from Alice and check if protocol was successful
     a = int(socket.recv())
     socket.send(str(b))
-    print(a, b)
 
     # TODO: what does "is successful" mean? should we measure the fidelity before and after the gates?
     return a == b

@@ -1,8 +1,11 @@
 from dejmps import dejmps_protocol_alice
 from netqasm.sdk import EPRSocket
-from netqasm.sdk.external import NetQASMConnection, Socket
+from netqasm.sdk.external import NetQASMConnection, Socket, get_qubit_state
+import numpy as np
 
 def main(app_config=None):
+    target_state = np.matrix(np.array([1, 0, 0, 1]).reshape(-1, 1) / np.sqrt(2))
+
     # Create a socket for classical communication
     socket = Socket(app_name='alice', remote_app_name='bob')
 
@@ -16,7 +19,10 @@ def main(app_config=None):
     with alice:
         q1, q2 = epr_socket.create(2)
         result = dejmps_protocol_alice(q1, q2, alice, socket)
-    return result
+        state = get_qubit_state(q1, reduced_dm=False)
+        fidelity = target_state.H @ state @ target_state
+        fidelity = float(np.array(fidelity)[0][0].real)
+    return fidelity
 
 
 if __name__ == "__main__":
