@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt  # note that matplotlib must be installed with `
 import os
 
 
-def get_best_choice(lines):
-    line = lines[-1]
+def get_best_choice(lines, iteration):
+    line = lines[iteration]
     line = line[1:-1]
     line = line.replace('Agent', '').replace('<', '').replace('>', '')
     split = line.split(',')
@@ -17,7 +17,8 @@ def get_best_choice(lines):
     return results[0][0]
 
 
-def main():
+def main(iteration):
+    iteration = iteration - 1 if iteration != -1 else -1
     to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
     alg_results = {}
     for gate_fidelity in to_try:
@@ -26,24 +27,27 @@ def main():
             with open(os.path.join('out', 'mba', save_file)) as f:
                 lines = f.read().split('\n')
             lines = [line for line in lines if line != '']
-            best = get_best_choice(lines)
+            iteration = len(lines) - 1 if iteration == -1 else iteration
+            best = get_best_choice(lines, iteration)
             if best not in alg_results:
                 alg_results[best] = []
             alg_results[best].append((gate_fidelity, entanglement_fidelity))
 
-    for alg in alg_results:
+    for alg in sorted(k for k in alg_results):
         xs = [x[0] for x in alg_results[alg]]
         ys = [x[1] for x in alg_results[alg]]
         plt.scatter(xs, ys, label=alg)
-    plt.title('Best distillation algorithms')
+    plt.title(f'Best distillation algorithms (iteration={iteration + 1})')
     plt.xlabel('Gate fidelity')
     plt.ylabel('Entanglement fidelity')
     plt.legend()
-    plt.savefig(os.path.join('out', 'aggregated.png'))
+    plt.savefig(os.path.join('out', f'aggregated_{iteration + 1}.png'))
     plt.show()
+    plt.clf()
 
 
 if __name__ == '__main__':
-    main()
+    for it in [1, 5, 10, 20, 50, -1]:
+        main(it)
 
 

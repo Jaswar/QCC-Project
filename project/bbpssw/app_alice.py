@@ -22,7 +22,7 @@ def main(app_config=None):
         result = bbpssw_protocol_alice(q1, q2, alice, socket)
         state = get_qubit_state(q1, reduced_dm=False)
         fidelity = target_state.H @ state @ target_state
-        fidelity = float(np.array(fidelity)[0][0].real)
+        fidelity = float(np.array(fidelity)[0][0].real) if result else 0.0
     return fidelity
 
 if __name__ == "__main__":
