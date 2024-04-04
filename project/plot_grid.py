@@ -25,14 +25,17 @@ def main(iteration):
     for gate_fidelity in to_try:
         for entanglement_fidelity in to_try:
             save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
-            with open(os.path.join('out', 'mba', save_file)) as f:
-                lines = f.read().split('\n')
-            lines = [line for line in lines if line != '']
-            iteration = len(lines) - 1 if iteration == -1 else iteration
-            best = get_best_choice(lines, iteration)
-            if best not in alg_results:
-                alg_results[best] = []
-            alg_results[best].append((gate_fidelity, entanglement_fidelity))
+            try:
+                with open(os.path.join('out', 'mba', save_file)) as f:
+                    lines = f.read().split('\n')
+                lines = [line for line in lines if line != '']
+                iteration = len(lines) - 1 if iteration == -1 else iteration
+                best = get_best_choice(lines, iteration)
+                if best not in alg_results:
+                    alg_results[best] = []
+                alg_results[best].append((gate_fidelity, entanglement_fidelity))
+            except FileNotFoundError as ex:
+                print(f'File {save_file} not found')
 
     for alg in sorted(k for k in alg_results):
         xs = [x[0] for x in alg_results[alg]]

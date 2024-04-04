@@ -41,7 +41,7 @@ class Expert(object):
 
 class Master(object):
 
-    def __init__(self, algos, num_iter=100):
+    def __init__(self, algos, num_iter=500):
         self.num_iter = num_iter
         self.experts = [Expert(name) for name in algos]
         self.probabilities = np.ones(len(self.experts)) / len(self.experts)
