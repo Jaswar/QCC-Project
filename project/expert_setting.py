@@ -17,7 +17,7 @@ def get_output(name):
 def run_algorithm(name):
     fidelity = 0.0
     try:
-        subprocess.run([f'cd {name} && netqasm simulate'], shell=True, timeout=60)
+        subprocess.run([f'cd {name} && netqasm simulate --formalism=dm'], shell=True, timeout=60)
         fidelity = get_output(name)
     except subprocess.TimeoutExpired as ex:
         print(f'{name} expired after 30 seconds!')
@@ -98,7 +98,7 @@ def main():
             master = Master(algos)
             master.run()
             save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
-            master.save(os.path.join('out', 'online', save_file))
+            master.save(os.path.join('out', 'expert', save_file))
 
 
 if __name__ == '__main__':
