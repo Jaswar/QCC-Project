@@ -18,12 +18,11 @@ def main(app_config=None):
     # Create Alice's context, initialize EPR pairs inside it and call Alice's DEJMPS method. Finally, print out whether or not Alice successfully created an EPR Pair with Bob.
     with alice:
         q1, q2 = epr_socket.create(2)
-        result = dejmps_protocol_alice(q1, q2, alice, socket)
+        result, avg_fidelity = dejmps_protocol_alice(q1, q2, alice, socket)
         state = get_qubit_state(q1, reduced_dm=False)
         fidelity = target_state.H @ state @ target_state
-        # print(fidelity)
         fidelity = float(np.array(fidelity)[0][0].real) if result else 0.0
-    return fidelity
+    return [fidelity, avg_fidelity]
 
 
 if __name__ == "__main__":

@@ -1,4 +1,6 @@
 import math
+from netqasm.sdk.external import get_qubit_state
+from utils import get_probability_and_fidelity
 
 
 def epl_protocol_alice(q1, q2, alice, socket):
@@ -14,7 +16,7 @@ def epl_protocol_alice(q1, q2, alice, socket):
     :param socket: Alice's classical communication socket to Bob
     :return: True/False indicating if protocol was successful
     """
-    a = epl_gates_and_measurement_alice(q1, q2)
+    a, avg_fidelity = epl_gates_and_measurement_alice(q1, q2, alice, socket)
     alice.flush()
     a = int(a)
 
@@ -22,10 +24,10 @@ def epl_protocol_alice(q1, q2, alice, socket):
     socket.send(str(a))
     b = int(socket.recv())
 
-    return a == b == 1
+    return a == b == 1, avg_fidelity
 
 
-def epl_gates_and_measurement_alice(q1, q2):
+def epl_gates_and_measurement_alice(q1, q2, alice, socket):
     """
     Performs the gates and measurements for Alice's side of the EPL protocol
     :param q1: Alice's qubit from the first entangled pair
@@ -33,8 +35,16 @@ def epl_gates_and_measurement_alice(q1, q2):
     :return: Integer 0/1 indicating Alice's measurement outcome
     """
     q1.cnot(q2)
+    alice.flush()
+    # note that this communication is to synchronize Alice and Bob before get_qubit_state
+    # otherwise the state is random and depends on who performs their gates earlier
+    socket.recv()
+    state = get_qubit_state(q1, reduced_dm=False)
+    p11, f11 = get_probability_and_fidelity(state, [0, 0, 0, 1])
+    mix = p11 * f11
+    socket.send('done')
     m = q2.measure()
-    return m
+    return m, mix
 
 
 def epl_protocol_bob(q1, q2, bob, socket):
@@ -50,7 +60,7 @@ def epl_protocol_bob(q1, q2, bob, socket):
     :param socket: Alice's classical communication socket to Bob
     :return: True/False indicating if protocol was successful
     """
-    b = epl_gates_and_measurement_bob(q1, q2)
+    b = epl_gates_and_measurement_bob(q1, q2, bob, socket)
     bob.flush()
     b = int(b)
 
@@ -60,7 +70,7 @@ def epl_protocol_bob(q1, q2, bob, socket):
 
     return a == b == 1
 
-def epl_gates_and_measurement_bob(q1, q2):
+def epl_gates_and_measurement_bob(q1, q2, bob, socket):
     """
     Performs the gates and measurements for Bob's side of the EPL protocol
     :param q1: Bob's qubit from the first entangled pair
@@ -68,6 +78,9 @@ def epl_gates_and_measurement_bob(q1, q2):
     :return: Integer 0/1 indicating Bob's measurement outcome
     """
     q1.cnot(q2)
+    bob.flush()
+    socket.send('ready')
+    socket.recv()
     m = q2.measure()
     return m
 
