@@ -1,27 +1,6 @@
-import subprocess
-import yaml
 import os
 import numpy as np
-
-
-def get_output(name):
-    with open(os.path.join(name, 'log', 'LAST', 'results.yaml')) as stream:
-        try:
-            loaded = yaml.safe_load(stream)
-            fidelity = loaded['app_alice']
-        except yaml.YAMLError as ex:
-            print(ex)
-    return fidelity
-
-
-def run_algorithm(name):
-    fidelity = 0.0
-    try:
-        subprocess.run([f'cd {name} && netqasm simulate --formalism=dm'], shell=True, timeout=60)
-        fidelity = get_output(name)
-    except subprocess.TimeoutExpired as ex:
-        print(f'{name} expired after 30 seconds!')
-    return fidelity
+from common import run_algorithm, clean, generate_setup
 
 
 class Expert(object):
@@ -67,27 +46,6 @@ class Master(object):
 
     def __str__(self):
         return '[' + ', '.join(f'{expert}: {round(self.probabilities[i], 4)}' for i, expert in enumerate(self.experts)) + ']'
-
-
-def clean(algos):
-    for alg in algos:
-        subprocess.run(f"rm -r {os.path.join(alg, 'log')}", shell=True)
-
-
-def generate_setup(algos, gate_fidelity, entanglement_fidelity):
-    for alg in algos:
-        with open(os.path.join(alg, 'network.yaml')) as stream:
-            try:
-                loaded = yaml.safe_load(stream)
-                for node in loaded['nodes']:
-                    node['gate_fidelity'] = float(gate_fidelity)
-                for link in loaded['links']:
-                    link['fidelity'] = float(entanglement_fidelity)
-            except yaml.YAMLError as ex:
-                print(ex)
-
-        with open(os.path.join(alg, 'network.yaml'), 'w') as stream:
-            yaml.dump(loaded, stream)
 
 
 def main():
