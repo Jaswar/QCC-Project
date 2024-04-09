@@ -1,5 +1,6 @@
 import math
 from netqasm.sdk.external import get_qubit_state
+from utils import get_probability_and_fidelity
 
 
 def bbpssw_protocol_alice(q1, q2, alice, socket):
@@ -15,16 +16,15 @@ def bbpssw_protocol_alice(q1, q2, alice, socket):
     :param socket: Alice's classical communication socket to Bob
     :return: True/False indicating if protocol was successful
     """
-    a = bbpssw_gates_and_measurement_alice(q1, q2, alice, socket)
+    a, avg_fidelity = bbpssw_gates_and_measurement_alice(q1, q2, alice, socket)
     alice.flush()
     a = int(a)
 
     # Write below the code to send measurement result to Bob, receive measurement result from Bob and check if protocol was successful
     socket.send(str(a))
     b = int(socket.recv())
-    # print(a, b)
 
-    return a == b
+    return a == b, avg_fidelity
 
 
 def bbpssw_gates_and_measurement_alice(q1, q2, alice, socket):
@@ -35,13 +35,17 @@ def bbpssw_gates_and_measurement_alice(q1, q2, alice, socket):
     :return: Integer 0/1 indicating Alice's measurement outcome
     """
     q1.cnot(q2)
-    # alice.flush()
-    # socket.recv()
-    # state = get_qubit_state(q1, reduced_dm=False)
-    # print(state)
-    # socket.send('done')
+    alice.flush()
+    # note that this communication is to synchronize Alice and Bob before get_qubit_state
+    # otherwise the state is random and depends on who performs their gates earlier
+    socket.recv()
+    state = get_qubit_state(q1, reduced_dm=False)
+    p00, f00 = get_probability_and_fidelity(state, [1, 0, 0, 0])
+    p11, f11 = get_probability_and_fidelity(state, [0, 0, 0, 1])
+    mix = p00 * f00 + p11 * f11
+    socket.send('done')
     m = q2.measure()
-    return m
+    return m, mix
 
 
 def bbpssw_protocol_bob(q1, q2, bob, socket):
@@ -76,9 +80,9 @@ def bbpssw_gates_and_measurement_bob(q1, q2, bob, socket):
     :return: Integer 0/1 indicating Bob's measurement outcome
     """
     q1.cnot(q2)
-    # bob.flush()
-    # socket.send('ready')
-    # socket.recv()
+    bob.flush()
+    socket.send('ready')
+    socket.recv()
     m = q2.measure()
     return m
 
