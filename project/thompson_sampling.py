@@ -22,7 +22,8 @@ class Action(object):
         return np.random.beta(self.successes + 1, self.failures + 1)
 
     def __str__(self):
-        return f'Action<{self.name}, {self.successes}, {self.failures}>'
+        mean = (self.successes + 1) / (self.successes + 1 + self.failures + 1)
+        return f'Action<{self.name}, {self.successes}, {self.failures}, {round(mean, 4)}>'
 
 
 class Master(object):
@@ -45,7 +46,7 @@ class Master(object):
             file.write('\n'.join(self.iterations))
 
     def __str__(self):
-        return '[' + ', '.join(f'{action}' for action in enumerate(self.actions)) + ']'
+        return '[' + ', '.join(f'{action}' for action in self.actions) + ']'
 
 
 def main():
