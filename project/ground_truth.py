@@ -10,6 +10,7 @@ def main():
         results[alg] = []
 
     to_try = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
     for gate_fidelity in to_try:
         for entanglement_fidelity in to_try:
             print(f'Trying setup {gate_fidelity=} and {entanglement_fidelity=}')

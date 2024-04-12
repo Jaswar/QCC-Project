@@ -19,14 +19,14 @@ def get_best_choice(lines, iteration):
 
 def main(iteration):
     iteration = iteration - 1 if iteration != -1 else -1
-    to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
-    # to_try = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
+    to_try = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     alg_results = {}
     for gate_fidelity in to_try:
         for entanglement_fidelity in to_try:
             save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
             try:
-                with open(os.path.join('out', 'mba', save_file)) as f:
+                with open(os.path.join('out', 'mba_500', save_file)) as f:
                     lines = f.read().split('\n')
                 lines = [line for line in lines if line != '']
                 iteration = len(lines) - 1 if iteration == -1 else iteration

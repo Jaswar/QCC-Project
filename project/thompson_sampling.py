@@ -3,40 +3,40 @@ import numpy as np
 from common import run_algorithm, clean, generate_setup
 
 
-class Expert(object):
+class Action(object):
 
     def __init__(self, name):
         self.name = name
-        self.total_loss = 0
+        self.failures = 0
+        self.successes = 0
 
-    def run(self, lr, prob):
+    def run(self):
         print(f'Running {self.name}')
-        loss = -run_algorithm(self.name) / prob
-        self.total_loss += lr * loss
+        reward = run_algorithm(self.name)
+        if np.random.random() < reward:
+            self.successes += 1
+        else:
+            self.failures += 1
+
+    def sample(self):
+        return np.random.beta(self.successes + 1, self.failures + 1)
 
     def __str__(self):
-        return f'Agent<{self.name}, {round(self.total_loss, 4)}>'
+        return f'Action<{self.name}, {self.successes}, {self.failures}>'
 
 
 class Master(object):
 
     def __init__(self, algos, num_iter=500):
         self.num_iter = num_iter
-        self.experts = [Expert(name) for name in algos]
-        self.probabilities = np.ones(len(self.experts)) / len(self.experts)
+        self.actions = [Action(name) for name in algos]
         self.iterations = []
-        d = len(self.experts)
-        self.lr = np.sqrt(2 * np.log(d) / (self.num_iter * d))
-        print(f'Using {self.lr=}')
 
     def run(self):
         for i in range(1, self.num_iter + 1):
-            index = np.random.choice([e for e in range(len(self.experts))], p=self.probabilities)
-            expert, prob = self.experts[index], self.probabilities[index]
-            expert.run(self.lr, prob)
-            cumulative_loss = sum(np.exp(-expert.total_loss) for expert in self.experts)
-            for j, expert in enumerate(self.experts):
-                self.probabilities[j] = np.exp(-expert.total_loss) / cumulative_loss
+            thetas = [action.sample() for action in self.actions]
+            action = self.actions[np.argmax(thetas)]
+            action.run()
             self.iterations.append(str(self))
             print(f'Iteration {i}: {self}')
 
@@ -45,7 +45,7 @@ class Master(object):
             file.write('\n'.join(self.iterations))
 
     def __str__(self):
-        return '[' + ', '.join(f'{expert}: {round(self.probabilities[i], 4)}' for i, expert in enumerate(self.experts)) + ']'
+        return '[' + ', '.join(f'{action}' for action in enumerate(self.actions)) + ']'
 
 
 def main():
