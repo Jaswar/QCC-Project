@@ -61,7 +61,7 @@ def main():
             master = Master(algos)
             master.run()
             save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
-            master.save(os.path.join('out', 'mba', save_file))
+            master.save(os.path.join('out', 'ts', save_file))
 
 
 if __name__ == '__main__':
