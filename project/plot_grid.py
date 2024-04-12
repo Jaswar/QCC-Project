@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt  # note that matplotlib must be installed with `
 import os
 
 
-def is_significant(gate_fidelity, entanglement_fidelity):
+def is_significant(gate_fidelity, entanglement_fidelity, threshold=0.05):
     # diffs calculate using the ground_truth.py script
     diffs = [(0.1, 0.1, 0.00016112250000008266), (0.1, 0.2, 0.0003969900000000415), (0.1, 0.3, 0.000707602500000043),
              (0.1, 0.4, 0.001092960000000004), (0.1, 0.5, 0.0015530625000000353), (0.1, 0.6, 0.002087910000000026),
@@ -39,7 +39,7 @@ def is_significant(gate_fidelity, entanglement_fidelity):
 
     for (pg, pe, diff) in diffs:
         if pg == gate_fidelity and pe == entanglement_fidelity:
-            return diff > 0.01
+            return diff >= threshold
     return False
 
 
@@ -58,43 +58,47 @@ def get_best_choice(lines, iteration):
     return results[0][0]
 
 
-def main(iteration):
-    iteration = iteration - 1 if iteration != -1 else -1
-    # to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
-    to_try = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    alg_results = {}
-    for gate_fidelity in to_try:
-        for entanglement_fidelity in to_try:
-            if not is_significant(gate_fidelity, entanglement_fidelity):
-                continue
-            save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
-            try:
-                with open(os.path.join('out', 'mba_500', save_file)) as f:
-                    lines = f.read().split('\n')
-                lines = [line for line in lines if line != '']
-                iteration = len(lines) - 1 if iteration == -1 else iteration
-                best = get_best_choice(lines, iteration)
-                if best not in alg_results:
-                    alg_results[best] = []
-                alg_results[best].append((gate_fidelity, entanglement_fidelity))
-            except FileNotFoundError as ex:
-                print(f'File {save_file} not found')
+def main(iterations):
+    fig, ax = plt.subplots(ncols=len(iterations), figsize=(5 * len(iterations), 5))
+    for i, iteration in enumerate(iterations):
+        axes = ax[i]
+        iteration = iteration - 1 if iteration != -1 else -1
+        # to_try = [0.2, 0.4, 0.6, 0.8, 1.0]
+        to_try = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        alg_results = {}
+        for gate_fidelity in to_try:
+            for entanglement_fidelity in to_try:
+                if not is_significant(gate_fidelity, entanglement_fidelity, threshold=0.05):
+                    continue
+                save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
+                try:
+                    with open(os.path.join('out', 'mba_500', save_file)) as f:
+                        lines = f.read().split('\n')
+                    lines = [line for line in lines if line != '']
+                    iteration = len(lines) - 1 if iteration == -1 else iteration
+                    best = get_best_choice(lines, iteration)
+                    if best not in alg_results:
+                        alg_results[best] = []
+                    alg_results[best].append((gate_fidelity, entanglement_fidelity))
+                except FileNotFoundError as ex:
+                    print(f'File {save_file} not found')
 
-    for alg in sorted(k for k in alg_results):
-        xs = [x[0] for x in alg_results[alg]]
-        ys = [x[1] for x in alg_results[alg]]
-        plt.scatter(xs, ys, label=alg)
-    plt.title(f'Best distillation algorithms (iteration={iteration + 1})')
-    plt.xlabel('Gate fidelity')
-    plt.ylabel('Entanglement fidelity')
-    plt.legend()
-    plt.savefig(os.path.join('out', f'aggregated_{iteration + 1}.png'))
+        for alg in sorted(k for k in alg_results):
+            xs = [x[0] for x in alg_results[alg]]
+            ys = [x[1] for x in alg_results[alg]]
+            axes.scatter(xs, ys, label=alg)
+        axes.set_title(f'{iteration + 1} iterations')
+        axes.set_xlabel('Gate fidelity')
+        axes.set_ylabel('Entanglement fidelity')
+        axes.legend(loc='upper right')
+
+    plt.tight_layout()
+    plt.savefig(os.path.join('out', f'aggregated_all.png'))
     plt.show()
     plt.clf()
 
 
 if __name__ == '__main__':
-    for it in [1, 5, 10, 20, 50, -1]:
-        main(it)
+    main([10, 50, 100, 250, -1])
 
 
