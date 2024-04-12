@@ -42,8 +42,11 @@ def main():
     print(differences)
     xs = [x[0] for x in differences]
     ys = [x[1] for x in differences]
-    s = [x[2] * 100 for x in differences]
-    plt.scatter(xs, ys, s=s)
+    c = [x[2] for x in differences]
+    plt.scatter(xs, ys, c=c, s=40, cmap='jet')
+    plt.xlabel('Gate fidelity')
+    plt.ylabel('Entanglement fidelity')
+    plt.colorbar()
     plt.savefig(os.path.join('out', f'differences.png'))
 
 
