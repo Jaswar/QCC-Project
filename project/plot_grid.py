@@ -3,7 +3,7 @@ import os
 
 
 def is_significant(gate_fidelity, entanglement_fidelity, threshold):
-    # diffs calculate using the ground_truth.py script
+    # diffs calculated using the ground_truth.py script
     diffs = [(0.1, 0.1, 0.00016112250000002715), (0.1, 0.2, 0.0003969900000000137), (0.1, 0.3, 0.000707602500000043),
              (0.1, 0.4, 0.001092960000000004), (0.1, 0.5, 0.0015530625000000353), (0.1, 0.6, 0.002087910000000026),
              (0.1, 0.7, 0.0026975025000000596), (0.1, 0.8, 0.0033818400000000803), (0.1, 0.9, 0.0041409225000000605),
@@ -76,7 +76,7 @@ def main(iterations, threshold=0.05):
                     continue
                 save_file = f'run_g{round(gate_fidelity, 2)}_e{round(entanglement_fidelity, 2)}.txt'
                 try:
-                    with open(os.path.join('out', 'mba_500', save_file)) as f:
+                    with open(os.path.join('out', 'mba', save_file)) as f:
                         lines = f.read().split('\n')
                     lines = [line for line in lines if line != '']
                     iteration = len(lines) - 1 if iteration == -1 else iteration

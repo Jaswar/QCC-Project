@@ -29,13 +29,14 @@ def main():
             diff = fidelities[0][1] - fidelities[1][1]
             differences.append((gate_fidelity, entanglement_fidelity, diff))
 
+    plt.figure(figsize=(5, 5))
     for alg in sorted(k for k in results):
         xs = [x[0] for x in results[alg]]
         ys = [x[1] for x in results[alg]]
         plt.scatter(xs, ys, label=alg)
     plt.xlabel('Gate fidelity')
     plt.ylabel('Entanglement fidelity')
-    plt.legend()
+    plt.legend(loc='upper right')
     plt.savefig(os.path.join('out', f'ground_truth.png'))
     plt.clf()
 
