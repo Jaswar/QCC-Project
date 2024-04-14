@@ -36,14 +36,17 @@ def bbpssw_gates_and_measurement_alice(q1, q2, alice, socket):
     """
     q1.cnot(q2)
     alice.flush()
+    q1.cnot(q2)
+    ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
-    # otherwise the state is random and depends on who performs their gates earlier
+    # otherwise the state is random and depends on who performs their gates earlie
     socket.recv()
     state = get_qubit_state(q1, reduced_dm=False)
     p00, f00 = get_probability_and_fidelity(state, [1, 0, 0, 0])
     p11, f11 = get_probability_and_fidelity(state, [0, 0, 0, 1])
     mix = p00 * f00 + p11 * f11
     socket.send('done')
+    ####################################################################################
     m = q2.measure()
     return m, mix
 
@@ -80,9 +83,13 @@ def bbpssw_gates_and_measurement_bob(q1, q2, bob, socket):
     :return: Integer 0/1 indicating Bob's measurement outcome
     """
     q1.cnot(q2)
+    ####################################################################################
+    # note that this communication is to synchronize Alice and Bob before get_qubit_state
+    # otherwise the state is random and depends on who performs their gates earlie
     bob.flush()
     socket.send('ready')
     socket.recv()
+    ####################################################################################
     m = q2.measure()
     return m
 

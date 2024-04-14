@@ -35,14 +35,16 @@ def epl_gates_and_measurement_alice(q1, q2, alice, socket):
     :return: Integer 0/1 indicating Alice's measurement outcome
     """
     q1.cnot(q2)
-    alice.flush()
+    ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
     # otherwise the state is random and depends on who performs their gates earlier
+    alice.flush()
     socket.recv()
     state = get_qubit_state(q1, reduced_dm=False)
     p11, f11 = get_probability_and_fidelity(state, [0, 0, 0, 1])
     mix = p11 * f11
     socket.send('done')
+    ####################################################################################
     m = q2.measure()
     return m, mix
 
@@ -78,9 +80,13 @@ def epl_gates_and_measurement_bob(q1, q2, bob, socket):
     :return: Integer 0/1 indicating Bob's measurement outcome
     """
     q1.cnot(q2)
+    ####################################################################################
+    # note that this communication is to synchronize Alice and Bob before get_qubit_state
+    # otherwise the state is random and depends on who performs their gates earlier
     bob.flush()
     socket.send('ready')
     socket.recv()
+    ####################################################################################
     m = q2.measure()
     return m
 
