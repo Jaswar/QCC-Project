@@ -38,6 +38,7 @@ def epl_gates_and_measurement_alice(q1, q2, alice, socket):
     ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
     # otherwise the state is random and depends on who performs their gates earlier
+    # this piece of code does not change the functionality of the protocol
     alice.flush()
     socket.recv()
     state = get_qubit_state(q1, reduced_dm=False)
@@ -83,6 +84,7 @@ def epl_gates_and_measurement_bob(q1, q2, bob, socket):
     ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
     # otherwise the state is random and depends on who performs their gates earlier
+    # this piece of code does not change the functionality of the protocol
     bob.flush()
     socket.send('ready')
     socket.recv()

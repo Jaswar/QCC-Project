@@ -39,7 +39,8 @@ def bbpssw_gates_and_measurement_alice(q1, q2, alice, socket):
     q1.cnot(q2)
     ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
-    # otherwise the state is random and depends on who performs their gates earlie
+    # otherwise the state is random and depends on who performs their gates earlier
+    # this piece of code does not change the functionality of the protocol
     socket.recv()
     state = get_qubit_state(q1, reduced_dm=False)
     p00, f00 = get_probability_and_fidelity(state, [1, 0, 0, 0])
@@ -85,7 +86,8 @@ def bbpssw_gates_and_measurement_bob(q1, q2, bob, socket):
     q1.cnot(q2)
     ####################################################################################
     # note that this communication is to synchronize Alice and Bob before get_qubit_state
-    # otherwise the state is random and depends on who performs their gates earlie
+    # otherwise the state is random and depends on who performs their gates earlier
+    # this piece of code does not change the functionality of the protocol
     bob.flush()
     socket.send('ready')
     socket.recv()
